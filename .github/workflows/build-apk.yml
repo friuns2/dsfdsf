@@ -45,20 +45,39 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Configure Capacitor (Bundled Version)
+      - name: Configure Capacitor for GitHub Pages
         run: |
-          # Create bundled version that includes web assets directly
+          # Update capacitor.config.json to use the published GitHub Pages URL
           cat > capacitor.config.json << 'EOF'
           {
             "appId": "com.ai.engineer.simulator",
             "appName": "AI Engineer Job Simulator",
             "webDir": "dist",
-            "bundledWebRuntime": false
+            "bundledWebRuntime": false,
+            "server": {
+              "url": "https://friuns2.github.io/dsfdsf/",
+              "cleartext": true
+            }
           }
           EOF
 
       - name: Copy web assets to Android
         run: npx cap sync android
+
+      - name: Add Android permissions
+        run: |
+          # Add internet permission to Android manifest
+          MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST_FILE" ]; then
+            # Add internet permission if not already present
+            if ! grep -q "android.permission.INTERNET" "$MANIFEST_FILE"; then
+              sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST_FILE"
+            fi
+            # Add network state permission
+            if ! grep -q "android.permission.ACCESS_NETWORK_STATE" "$MANIFEST_FILE"; then
+              sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' "$MANIFEST_FILE"
+            fi
+          fi
 
       - name: Build Android APK
         run: |
