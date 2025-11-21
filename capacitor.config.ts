@@ -1,11 +1,13 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.igor.dsfdsf',
-  appName: 'Dsfdsf',
+  appId: 'com.ai.engineer.simulator',
+  appName: 'AI Engineer Job Simulator',
   webDir: 'dist',
-  // Note: In GitHub Actions, this config is overridden to point to GitHub Pages URL
-  // The APK will load the live website from GitHub Pages instead of bundled assets
+  server: {
+    url: process.env.CAPACITOR_SERVER_URL || 'http://localhost:3000',
+    cleartext: true
+  }
 };
 
 export default config;
