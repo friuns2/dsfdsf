@@ -1,6 +1,6 @@
 import { Hotel } from '../types';
 
-const APIFY_TOKEN = 'process.env.VITE_APIFY_TOKEN';
+const APIFY_TOKEN = process.env.VITE_APIFY_TOKEN;
 const ACTOR_NAME = 'poidata~google-maps-scraper';
 const API_BASE_URL = 'https://api.apify.com/v2';
 
