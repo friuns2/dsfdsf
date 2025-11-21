@@ -31,11 +31,14 @@ The workflow `.github/workflows/create-keystore.yml` will:
 - Generate a new keystore if missing using Java's keytool
 - Commit the keystore to the repository
 
-### Triggering the Workflow
+### Automatic Execution
 
-The workflow runs automatically when:
-- You push to the `main` branch and the keystore is missing
-- Manually triggered from the GitHub Actions tab
+The workflow runs automatically on:
+- All pushes to the `main` branch
+- All pull requests targeting the `main` branch
+- Manual trigger from the GitHub Actions tab
+
+This ensures the Android keystore is always available for builds and deployments.
 
 ### Security Considerations
 
