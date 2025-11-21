@@ -21,34 +21,37 @@ View your app in AI Studio: https://ai.studio/apps/drive/1pbt4C7cz5i32KVfZCavqF9
 
 ## Android Keystore Management
 
-This project includes a GitHub Action to automatically create and manage the Android keystore for APK signing.
+This project includes a GitHub Action to create and distribute Android keystores via GitHub Releases.
 
-### Automatic Keystore Creation
+### Keystore Release Creation
 
-The workflow `.github/workflows/create-keystore.yml` will:
+The workflow `.github/workflows/create-keystore.yml` creates secure keystore releases:
 
-- Check if `release.keystore` exists in the root directory
-- Generate a new keystore if missing using Java's keytool
-- Commit the keystore to the repository
+- Generates a new RSA 2048-bit keystore using Java's keytool
+- Creates a compressed archive of the keystore
+- Publishes it as a GitHub Release with download links
+- Includes detailed usage instructions in the release notes
 
-### Automatic Execution
+### Manual Trigger
 
-The workflow runs automatically on:
-- All pushes to the `main` branch
-- All pull requests targeting the `main` branch
-- Manual trigger from the GitHub Actions tab
+The workflow runs only on manual trigger from the GitHub Actions tab:
 
-This ensures the Android keystore is always available for builds and deployments.
+- Go to **Actions** → **Create Android Keystore Release**
+- Click **"Run workflow"**
+- Optionally customize the release tag and keystore password
+- The keystore will be created and uploaded to a new GitHub release
 
-### Security Considerations
+### Security Benefits
 
-⚠️ **Important Security Notes:**
+✅ **Better Security Approach:**
+- Keystore is not committed to source code repository
+- No sensitive files in git history
+- Downloadable only when needed via GitHub releases
+- Release management provides version control for keystores
 
-- The keystore contains sensitive signing information
-- Default password is `android123` (change this in production)
-- Set `KEYSTORE_PASSWORD` as a repository secret for production use
-- Consider encrypting the keystore or using a different approach for production builds
+### Setup
 
-**Required Setup:**
-- Add `KEYSTORE_PASSWORD` as a repository secret in GitHub (optional - defaults to 'android123')
-- The workflow automatically has write permissions to commit the keystore
+**Optional Configuration:**
+- Add `KEYSTORE_PASSWORD` as a repository secret in GitHub for custom password
+- Default password is `'android123'` if no secret is set
+- Workflow has permissions to create releases automatically
