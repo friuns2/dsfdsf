@@ -1,29 +1,24 @@
 
-export enum TaskType {
-  TEXT = 'text',
-  VISION = 'vision',
-  JSON = 'json',
+export interface OwnerResponse {
+  text: string;
+  publishedAt: string;
 }
 
-export interface Solution {
-  idealModel: string;
-  promptKeywords: string[];
+export interface Review {
+  text: string | null;
+  rating: number;
+  publishedAt: string;
+  reviewerName: string;
+  ownerResponse: OwnerResponse | null;
+  images: { url: string }[] | null;
 }
 
-export interface Task {
+export interface Hotel {
   id: string;
   title: string;
-  description: string;
-  type: TaskType;
-  solution: Solution;
-  mockSuccessOutput: string | object;
-  mockFailureOutput: string;
-}
-
-export interface SimulationResult {
-  output: string | object;
-  evaluation: string;
-  success: boolean;
-  modelFeedback: string;
-  promptFeedback: string;
+  address: string;
+  rating: number;
+  reviewsCount: number;
+  reviews: Review[];
+  url: string;
 }

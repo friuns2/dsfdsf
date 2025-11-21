@@ -1,5 +1,5 @@
 {
-  "name": "AI Engineer Job Simulator",
-  "description": "A simulator where you step into the shoes of an AI Engineer. Analyze tasks, choose the right Gemini model, write prompts, and see the results of your decisions.",
+  "name": "Apify Hotel Reviews Viewer",
+  "description": "An application to retrieve and display hotel reviews from Danang using the Apify 'Google Maps Scraper' Actor.",
   "requestFramePermissions": []
 }

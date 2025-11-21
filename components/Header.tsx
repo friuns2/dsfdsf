@@ -1,14 +1,18 @@
 
 import React from 'react';
-import { CodeIcon } from './icons/CodeIcon';
 
 const Header: React.FC = () => {
   return (
-    <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 flex items-center shadow-lg sticky top-0 z-10">
-      <CodeIcon className="w-8 h-8 text-cyan-400 mr-3" />
-      <h1 className="text-2xl font-bold text-white tracking-wider">
-        AI Engineer Job Simulator
-      </h1>
+    <header className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="container mx-auto px-4 md:px-8 py-6">
+        <div className="flex items-center space-x-4">
+          <svg className="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Danang Hotel Reviews</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Powered by Apify & Google Maps Scraper</p>
+          </div>
+        </div>
+      </div>
     </header>
   );
 };
