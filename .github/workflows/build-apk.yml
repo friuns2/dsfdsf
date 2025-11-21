@@ -95,6 +95,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ai-engineer-simulator-apk
+          name: ${{ github.event.repository.name }}-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
