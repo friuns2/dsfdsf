@@ -98,3 +98,24 @@ jobs:
           name: ${{ github.event.repository.name }}-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Prepare Release APK
+        run: |
+          # Generate app name from repository name (capitalize first letter of each word)
+          APP_NAME=$(echo "${GITHUB_REPOSITORY#*/}" | sed 's/-/ /g' | sed 's/\b\w/\U&/g' | sed 's/ /-/g')
+          cp android/app/build/outputs/apk/debug/app-debug.apk "${APP_NAME}-debug.apk"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: APK Release ${{ github.run_number }}
+          body: |
+            Automated APK build for commit ${{ github.sha }}
+
+            **Repository:** ${{ github.repository }}
+            **Workflow:** ${{ github.workflow }}
+            **Run:** ${{ github.run_number }}
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          draft: false
+          prerelease: false
