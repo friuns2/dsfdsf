@@ -27,6 +27,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Capacitor/Android
-android/
+android/keystore/
+*.keystore
+*.jks
 ios/
 capacitor.config.json
