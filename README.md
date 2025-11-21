@@ -49,4 +49,6 @@ This ensures the Android keystore is always available for builds and deployments
 - Set `KEYSTORE_PASSWORD` as a repository secret for production use
 - Consider encrypting the keystore or using a different approach for production builds
 
-To set a custom keystore password, add `KEYSTORE_PASSWORD` as a repository secret in GitHub.
+**Required Setup:**
+- Add `KEYSTORE_PASSWORD` as a repository secret in GitHub (optional - defaults to 'android123')
+- The workflow automatically has write permissions to commit the keystore
