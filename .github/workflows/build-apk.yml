@@ -38,7 +38,11 @@ jobs:
         run: npm install -g @capacitor/cli
 
       - name: Initialize Capacitor
-        run: npx cap init "AI Engineer Job Simulator" "com.ai.engineer.simulator" --web-dir=dist
+        run: |
+          # Generate app name from repository name (capitalize first letter of each word)
+          APP_NAME=$(echo "${GITHUB_REPOSITORY#*/}" | sed 's/-/ /g' | sed 's/\b\w/\U&/g')
+          APP_ID="com.${GITHUB_ACTOR}.${GITHUB_REPOSITORY#*/}"
+          npx cap init "$APP_NAME" "$APP_ID" --web-dir=dist
 
       - name: Add Android platform
         run: |
@@ -47,11 +51,14 @@ jobs:
 
       - name: Configure Capacitor for GitHub Pages
         run: |
+          # Generate app name from repository name (capitalize first letter of each word)
+          APP_NAME=$(echo "${GITHUB_REPOSITORY#*/}" | sed 's/-/ /g' | sed 's/\b\w/\U&/g')
+          APP_ID="com.${GITHUB_ACTOR}.${GITHUB_REPOSITORY#*/}"
           # Update capacitor.config.json to use the published GitHub Pages URL
           cat > capacitor.config.json << EOF
           {
-            "appId": "com.ai.engineer.simulator",
-            "appName": "AI Engineer Job Simulator",
+            "appId": "$APP_ID",
+            "appName": "$APP_NAME",
             "webDir": "dist",
             "bundledWebRuntime": false,
             "server": {
