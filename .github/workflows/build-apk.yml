@@ -37,28 +37,24 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Extract app metadata
-        id: metadata
+      - name: Generate app name and ID from repository name
+        id: app-config
         run: |
-          APP_NAME=$(jq -r '.name' metadata.json)
-          PROJECT_NAME=$(jq -r '.name' package.json | sed 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-          APP_ID="com.ai.engineer.simulator"
+          # Convert repository name to app name (replace hyphens with spaces, capitalize words)
+          REPO_NAME="${{ github.event.repository.name }}"
+          APP_NAME=$(echo "$REPO_NAME" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
+          # Generate app ID in reverse domain format
+          APP_ID="com.$(echo "$REPO_NAME" | sed 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]').app"
           echo "app_name=$APP_NAME" >> $GITHUB_OUTPUT
           echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
-          echo "project_name=$PROJECT_NAME" >> $GITHUB_OUTPUT
-
-      - name: Generate icons and splash screens
-        run: |
-          # Generate Android icons and splash screens from icon.png
-          npx capacitor-assets generate --android
 
       - name: Create Capacitor config for GitHub Pages
         run: |
           # Create capacitor.config.json to use the published GitHub Pages URL
           cat > capacitor.config.json << EOF
           {
-            "appId": "${{ steps.metadata.outputs.app_id }}",
-            "appName": "${{ steps.metadata.outputs.app_name }}",
+            "appId": "${{ steps.app-config.outputs.app_id }}",
+            "appName": "${{ steps.app-config.outputs.app_name }}",
             "webDir": "dist",
             "server": {
               "url": "https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/",
@@ -69,8 +65,13 @@ jobs:
 
       - name: Initialize Capacitor and add Android
         run: |
-          npx cap init "${{ steps.metadata.outputs.app_name }}" "${{ steps.metadata.outputs.app_id }}" --web-dir=dist
+          npx cap init "${{ steps.app-config.outputs.app_name }}" "${{ steps.app-config.outputs.app_id }}" --web-dir=dist
           npx cap add android
+
+      - name: Generate icons and splashscreens
+        run: |
+          # Generate icons and splashscreens from icon.png
+          npx capacitor-assets generate
 
       - name: Copy Capacitor config to Android assets
         run: |
