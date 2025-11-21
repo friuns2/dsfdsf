@@ -143,8 +143,8 @@ jobs:
           sed -i '/android {/a \    signingConfigs {\n        release {\n            if (keystorePropertiesFile.exists()) {\n                keyAlias keystoreProperties["keyAlias"]\n                keyPassword keystoreProperties["keyPassword"]\n                storeFile file(keystoreProperties["storeFile"])\n                storePassword keystoreProperties["storePassword"]\n            }\n        }\n    }' "$BUILD_GRADLE"
           
           # Update release buildType to use signing config
-          sed -i '/buildTypes {/,/release {/ { /release {/a \            signingConfig signingConfigs.release' "$BUILD_GRADLE"
-          sed -i '/buildTypes {/,/release {/ { /release {/a \            minifyEnabled false' "$BUILD_GRADLE"
+          sed -i '/buildTypes {/,/release {/{ /release {/a \            signingConfig signingConfigs.release\n            minifyEnabled false
+          }' "$BUILD_GRADLE"
           
           echo "✅ Signing configuration added to build.gradle"
 
