@@ -45,19 +45,15 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Configure Capacitor for GitHub Pages
+      - name: Configure Capacitor (Bundled Version)
         run: |
-          # Update capacitor.config.json to use the published GitHub Pages URL
+          # Create bundled version that includes web assets directly
           cat > capacitor.config.json << 'EOF'
           {
             "appId": "com.ai.engineer.simulator",
             "appName": "AI Engineer Job Simulator",
             "webDir": "dist",
-            "bundledWebRuntime": false,
-            "server": {
-              "url": "https://friuns2.github.io/dsfdsf/",
-              "cleartext": true
-            }
+            "bundledWebRuntime": false
           }
           EOF
 
