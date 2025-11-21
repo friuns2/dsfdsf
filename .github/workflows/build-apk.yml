@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK & Bundle
 
 on:
   push:
@@ -84,11 +84,71 @@ jobs:
             fi
           fi
 
-      - name: Build Android APK
+      - name: Download keystore from release
+        run: |
+          # Find the latest keystore release
+          KEYSTORE_RELEASE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" | \
+            jq -r '.[] | select(.tag_name | startswith("keystore-")) | .tag_name' | head -1)
+          
+          if [ -z "$KEYSTORE_RELEASE" ]; then
+            echo "❌ No keystore release found. Please run the 'Create Android Keystore Release' workflow first."
+            exit 1
+          fi
+          
+          echo "📥 Downloading keystore from release: $KEYSTORE_RELEASE"
+          
+          # Download the keystore archive
+          curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$KEYSTORE_RELEASE" | \
+            jq -r '.assets[] | select(.name | contains("keystore")) | .browser_download_url' | \
+            xargs curl -L -o keystore.tar.gz
+          
+          # Extract the keystore
+          tar -xzf keystore.tar.gz
+          
+          # Move keystore to android/app directory
+          mkdir -p android/app
+          mv release.keystore android/app/
+          
+          echo "✅ Keystore downloaded and extracted successfully"
+
+      - name: Configure signing for release build
+        run: |
+          # Create signing configuration
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD || 'android123' }}
+          keyPassword=${{ secrets.KEYSTORE_PASSWORD || 'android123' }}
+          keyAlias=release
+          storeFile=release.keystore
+          EOF
+          
+          # Update build.gradle to use signing config
+          BUILD_GRADLE="android/app/build.gradle"
+          
+          # Add signing config loading at the top of the file
+          sed -i '1i def keystorePropertiesFile = rootProject.file("key.properties")\ndef keystoreProperties = new Properties()\nif (keystorePropertiesFile.exists()) {\n    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))\n}\n' "$BUILD_GRADLE"
+          
+          # Add signingConfigs block before buildTypes
+          sed -i '/android {/a \    signingConfigs {\n        release {\n            if (keystorePropertiesFile.exists()) {\n                keyAlias keystoreProperties["keyAlias"]\n                keyPassword keystoreProperties["keyPassword"]\n                storeFile file(keystoreProperties["storeFile"])\n                storePassword keystoreProperties["storePassword"]\n            }\n        }\n    }' "$BUILD_GRADLE"
+          
+          # Update release buildType to use signing config
+          sed -i '/buildTypes {/,/release {/ { /release {/a \            signingConfig signingConfigs.release' "$BUILD_GRADLE"
+          sed -i '/buildTypes {/,/release {/ { /release {/a \            minifyEnabled false' "$BUILD_GRADLE"
+          
+          echo "✅ Signing configuration added to build.gradle"
+
+      - name: Build Android APK (Release)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+
+      - name: Build Android App Bundle (AAB) for Google Play
+        run: |
+          cd android
+          ./gradlew bundleRelease
 
       - name: Get current date
         id: date
@@ -100,13 +160,22 @@ jobs:
           tag_name: v${{ steps.date.outputs.date }}
           name: Release ${{ steps.date.outputs.date }}
           body: |
-            Automated APK build from commit ${{ github.sha }}
+            Automated build from commit ${{ github.sha }}
 
             **Changes:**
             ${{ github.event.head_commit.message }}
+            
+            **Build Artifacts:**
+            - `app-release.apk` - Signed APK for direct installation
+            - `app-release.aab` - Signed Android App Bundle for Google Play Store
+            
+            **Installation:**
+            - For testing: Download and install the APK directly on your device
+            - For Google Play: Upload the AAB file to Google Play Console
           draft: false
           prerelease: false
           files: |
-            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
