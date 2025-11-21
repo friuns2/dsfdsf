@@ -27,7 +27,7 @@ This project includes a GitHub Action to automatically create and manage the And
 
 The workflow `.github/workflows/create-keystore.yml` will:
 
-- Check if `android/app/release.keystore` exists
+- Check if `release.keystore` exists in the root directory
 - Generate a new keystore if missing using Java's keytool
 - Commit the keystore to the repository
 
