@@ -41,7 +41,9 @@ jobs:
         run: npx cap init "AI Engineer Job Simulator" "com.ai.engineer.simulator" --web-dir=dist
 
       - name: Add Android platform
-        run: npx cap add android
+        run: |
+          rm -rf android
+          npx cap add android
 
       - name: Configure Capacitor for GitHub Pages
         run: |
