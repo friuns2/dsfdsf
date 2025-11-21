@@ -29,7 +29,4 @@ yarn-error.log*
 # Capacitor/Android
 android/
 ios/
-# APK analysis files
-latest.apk
-apk_contents/
-apk_analysis/
+capacitor.config.json

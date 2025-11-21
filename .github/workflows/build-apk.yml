@@ -34,21 +34,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli
+      - name: Build web app
+        run: npm run build
 
-      - name: Initialize Capacitor
-        run: npx cap init "AI Engineer Job Simulator" "com.ai.engineer.simulator" --web-dir=dist
-
-      - name: Add Android platform
+      - name: Create Capacitor config for GitHub Pages
         run: |
-          rm -rf android
+          # Create capacitor.config.json to use the published GitHub Pages URL
+          cat > capacitor.config.json << EOF
+          {
+            "appId": "com.ai.engineer.simulator",
+            "appName": "AI Engineer Job Simulator",
+            "webDir": "dist",
+            "server": {
+              "url": "https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/",
+              "cleartext": true
+            }
+          }
+          EOF
+
+      - name: Initialize Capacitor and add Android
+        run: |
+          npx cap init "AI Engineer Job Simulator" "com.ai.engineer.simulator" --web-dir=dist
           npx cap add android
 
-      - name: Configure Capacitor to use GitHub Pages
+      - name: Copy Capacitor config to Android assets
         run: |
-          # Set environment variable for Capacitor server URL
-          echo "CAPACITOR_SERVER_URL=https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/" >> $GITHUB_ENV
+          mkdir -p android/app/src/main/assets
+          cp capacitor.config.json android/app/src/main/assets/
 
       - name: Sync Capacitor
         run: npx cap sync android
