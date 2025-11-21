@@ -34,9 +34,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build web app
-        run: npm run build
-
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli
 
@@ -52,7 +49,7 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Configure Capacitor for GitHub Pages
+      - name: Configure Capacitor to use GitHub Pages
         run: |
           # Generate app name from repository name (capitalize first letter of each word)
           APP_NAME=$(echo "${GITHUB_REPOSITORY#*/}" | sed 's/-/ /g' | sed 's/\b\w/\U&/g')
@@ -63,15 +60,17 @@ jobs:
             "appId": "$APP_ID",
             "appName": "$APP_NAME",
             "webDir": "dist",
-            "bundledWebRuntime": false,
             "server": {
               "url": "https://${GITHUB_ACTOR}.github.io/${GITHUB_REPOSITORY#*/}/",
               "cleartext": true
             }
           }
           EOF
+          # Also update the Android assets config
+          mkdir -p android/app/src/main/assets
+          cp capacitor.config.json android/app/src/main/assets/
 
-      - name: Copy web assets to Android
+      - name: Sync Capacitor
         run: npx cap sync android
 
       - name: Install ImageMagick
@@ -160,7 +159,7 @@ jobs:
           </adaptive-icon>
           EOF
 
-      - name: Add Android permissions
+      - name: Add Android permissions and network config
         run: |
           # Add internet permission to Android manifest
           MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
@@ -172,6 +171,10 @@ jobs:
             # Add network state permission
             if ! grep -q "android.permission.ACCESS_NETWORK_STATE" "$MANIFEST_FILE"; then
               sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' "$MANIFEST_FILE"
+            fi
+            # Enable cleartext traffic for loading from GitHub Pages
+            if ! grep -q "android:usesCleartextTraffic" "$MANIFEST_FILE"; then
+              sed -i 's/<application/<application android:usesCleartextTraffic="true"/' "$MANIFEST_FILE"
             fi
           fi
 

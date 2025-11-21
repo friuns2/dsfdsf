@@ -4,8 +4,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    // Use base path for GitHub Pages deployment, but "/" for local dev and APK builds
+    const base = process.env.GITHUB_ACTIONS && process.env.GITHUB_REPOSITORY 
+      ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/` 
+      : '/';
+    
     return {
-      base: process.env.GITHUB_ACTIONS ? `/${process.env.GITHUB_REPOSITORY?.split('/')[1]}/` : '/',
+      base,
       server: {
         port: 3000,
         host: '0.0.0.0',
