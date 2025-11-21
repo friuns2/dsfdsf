@@ -74,6 +74,92 @@ jobs:
       - name: Copy web assets to Android
         run: npx cap sync android
 
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Generate Android Icons
+        run: |
+          # Create Android icon directories if they don't exist
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+
+          # Generate icons for different densities
+          # mdpi (48x48)
+          convert icon.png -resize 48x48 android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          # hdpi (72x72)
+          convert icon.png -resize 72x72 android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          # xhdpi (96x96)
+          convert icon.png -resize 96x96 android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          # xxhdpi (144x144)
+          convert icon.png -resize 144x144 android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          # xxxhdpi (192x192)
+          convert icon.png -resize 192x192 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
+          # Generate adaptive icon background and foreground
+          mkdir -p android/app/src/main/res/mipmap-mdpi-v26
+          mkdir -p android/app/src/main/res/mipmap-hdpi-v26
+          mkdir -p android/app/src/main/res/mipmap-xhdpi-v26
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi-v26
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi-v26
+
+          # Create a simple background (you can customize this)
+          convert -size 108x108 xc:"#FFFFFF" android/app/src/main/res/mipmap-mdpi-v26/ic_launcher_background.png
+          convert -size 162x162 xc:"#FFFFFF" android/app/src/main/res/mipmap-hdpi-v26/ic_launcher_background.png
+          convert -size 216x216 xc:"#FFFFFF" android/app/src/main/res/mipmap-xhdpi-v26/ic_launcher_background.png
+          convert -size 324x324 xc:"#FFFFFF" android/app/src/main/res/mipmap-xxhdpi-v26/ic_launcher_background.png
+          convert -size 432x432 xc:"#FFFFFF" android/app/src/main/res/mipmap-xxxhdpi-v26/ic_launcher_background.png
+
+          # Create foreground icons (scaled down versions of the main icon)
+          convert icon.png -resize 66x66 android/app/src/main/res/mipmap-mdpi-v26/ic_launcher_foreground.png
+          convert icon.png -resize 99x99 android/app/src/main/res/mipmap-hdpi-v26/ic_launcher_foreground.png
+          convert icon.png -resize 132x132 android/app/src/main/res/mipmap-xhdpi-v26/ic_launcher_foreground.png
+          convert icon.png -resize 198x198 android/app/src/main/res/mipmap-xxhdpi-v26/ic_launcher_foreground.png
+          convert icon.png -resize 264x264 android/app/src/main/res/mipmap-xxxhdpi-v26/ic_launcher_foreground.png
+
+          # Create adaptive icon XML files
+          cat > android/app/src/main/res/mipmap-mdpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
+
+          cat > android/app/src/main/res/mipmap-hdpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
+
+          cat > android/app/src/main/res/mipmap-xhdpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
+
+          cat > android/app/src/main/res/mipmap-xxhdpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
+
+          cat > android/app/src/main/res/mipmap-xxxhdpi-v26/ic_launcher.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background"/>
+              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+          </adaptive-icon>
+          EOF
+
       - name: Add Android permissions
         run: |
           # Add internet permission to Android manifest
